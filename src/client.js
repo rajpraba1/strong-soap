@@ -37,6 +37,13 @@ class Client extends Base {
     this.security = security;
   }
 
+// call setClientSecurity to define  the https channel for communication
+// this allows self.security to be used for an additional security mechanism such as
+// one of the WSSecurityCert/WSSecurity/BasicAuthSecurity/BearerSecurity
+  setClientSecurity(clientSecurity) {
+    this.clientSecurity = clientSecurity;
+  }
+
   setSOAPAction(soapAction) {
     this.SOAPAction = soapAction;
   }
@@ -171,8 +178,12 @@ class Client extends Base {
       self.security.addOptions(options);
       debugSensitive('client request. options: %j', options);
     }
-
-
+    // if self.clientSecurity is defined, use it to create the https channel for communication
+    // this allows self.security to be used for one of the WSSecurityCert/WSSecurity/BasicAuthSecurity/BearerSecurity
+    if (self.clientSecurity && self.clientSecurity.addOptions) {
+      self.clientSecurity.addOptions(options);
+      debugSensitive('client request. options: %j', options);
+    }
 
     var nsContext = this.createNamespaceContext(soapNsPrefix, soapNsURI);
     var xmlHandler = this.xmlHandler || new XMLHandler(options);
